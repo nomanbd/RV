@@ -12,14 +12,14 @@ import asyncio
 import uuid
 from datetime import date, datetime, timezone
 
-from sqlalchemy import select
+from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.core.config import settings
 from app.core.permissions import ROLE_PERMISSIONS, Permission
 from app.core.security import get_password_hash
 from app.db.base import Base
-from app.domains.auth.models import PermissionModel, Role, User, role_permissions
+from app.domains.auth.models import PermissionModel, Role, User, role_permissions, user_roles
 from app.domains.patients.models import Patient, PatientDiagnosis
 from app.domains.machines.models import TreatmentMachine, ToleranceTable
 
@@ -67,7 +67,12 @@ async def seed():
             await db.flush()
 
             for perm in perms:
-                role.permissions.append(permission_models[perm.value])
+                await db.execute(
+                    insert(role_permissions).values(
+                        role_id=role.id,
+                        permission_id=permission_models[perm.value].id,
+                    )
+                )
 
             roles[role_name] = role
 
@@ -75,82 +80,37 @@ async def seed():
         print(f"  Created {len(roles)} roles")
 
         # --- Create Users ---
-        admin = User(
-            username="admin",
-            email="admin@rv-system.com",
-            hashed_password=get_password_hash("admin123"),
-            first_name="System",
-            last_name="Administrator",
-            title=None,
-            status="active",
-        )
-        admin.roles.append(roles["admin"])
-        db.add(admin)
+        users_data = [
+            ("admin", "admin@rv-system.com", "admin123", "System", "Administrator", None, None, "admin"),
+            ("dr.smith", "smith@rv-system.com", "password123", "Sarah", "Smith", "Dr.", "RO-12345", "radiation_oncologist"),
+            ("physicist.jones", "jones@rv-system.com", "password123", "Michael", "Jones", "PhD", "MP-67890", "physicist"),
+            ("rtt.williams", "williams@rv-system.com", "password123", "Emily", "Williams", "RTT", "RT-11111", "therapist"),
+            ("rtt.brown", "brown@rv-system.com", "password123", "James", "Brown", "RTT", "RT-22222", "therapist"),
+            ("dos.davis", "davis@rv-system.com", "password123", "Lisa", "Davis", "CMD", "CMD-33333", "dosimetrist"),
+        ]
 
-        dr_smith = User(
-            username="dr.smith",
-            email="smith@rv-system.com",
-            hashed_password=get_password_hash("password123"),
-            first_name="Sarah",
-            last_name="Smith",
-            title="Dr.",
-            professional_id="RO-12345",
-            status="active",
-        )
-        dr_smith.roles.append(roles["radiation_oncologist"])
-        db.add(dr_smith)
+        user_objects = {}
+        for username, email, password, first, last, title, prof_id, role_name in users_data:
+            user = User(
+                username=username,
+                email=email,
+                hashed_password=get_password_hash(password),
+                first_name=first,
+                last_name=last,
+                title=title,
+                professional_id=prof_id,
+                status="active",
+            )
+            db.add(user)
+            await db.flush()
+            await db.execute(
+                insert(user_roles).values(user_id=user.id, role_id=roles[role_name].id)
+            )
+            user_objects[username] = user
 
-        physicist = User(
-            username="physicist.jones",
-            email="jones@rv-system.com",
-            hashed_password=get_password_hash("password123"),
-            first_name="Michael",
-            last_name="Jones",
-            title="PhD",
-            professional_id="MP-67890",
-            status="active",
-        )
-        physicist.roles.append(roles["physicist"])
-        db.add(physicist)
-
-        therapist1 = User(
-            username="rtt.williams",
-            email="williams@rv-system.com",
-            hashed_password=get_password_hash("password123"),
-            first_name="Emily",
-            last_name="Williams",
-            title="RTT",
-            professional_id="RT-11111",
-            status="active",
-        )
-        therapist1.roles.append(roles["therapist"])
-        db.add(therapist1)
-
-        therapist2 = User(
-            username="rtt.brown",
-            email="brown@rv-system.com",
-            hashed_password=get_password_hash("password123"),
-            first_name="James",
-            last_name="Brown",
-            title="RTT",
-            professional_id="RT-22222",
-            status="active",
-        )
-        therapist2.roles.append(roles["therapist"])
-        db.add(therapist2)
-
-        dosimetrist = User(
-            username="dos.davis",
-            email="davis@rv-system.com",
-            hashed_password=get_password_hash("password123"),
-            first_name="Lisa",
-            last_name="Davis",
-            title="CMD",
-            professional_id="CMD-33333",
-            status="active",
-        )
-        dosimetrist.roles.append(roles["dosimetrist"])
-        db.add(dosimetrist)
+        admin = user_objects["admin"]
+        dr_smith = user_objects["dr.smith"]
+        physicist = user_objects["physicist.jones"]
 
         await db.flush()
         print("  Created 6 users (admin, oncologist, physicist, 2 therapists, dosimetrist)")

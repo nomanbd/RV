@@ -47,7 +47,12 @@ class User(Base):
     must_change_password: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Relationships
-    roles: Mapped[list["Role"]] = relationship(secondary=user_roles, lazy="selectin")
+    roles: Mapped[list["Role"]] = relationship(
+        secondary=user_roles,
+        lazy="selectin",
+        primaryjoin="User.id == user_roles.c.user_id",
+        secondaryjoin="Role.id == user_roles.c.role_id",
+    )
 
     @property
     def full_name(self) -> str:
