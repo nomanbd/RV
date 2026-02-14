@@ -8,7 +8,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { IconPlus, IconEdit, IconSettings } from '@tabler/icons-react';
 import { machinesApi } from '../api/machines';
-import type { TreatmentMachine } from '../types/machine';
 
 const STATUS_COLORS: Record<string, string> = {
   active: 'green',
@@ -19,8 +18,6 @@ const STATUS_COLORS: Record<string, string> = {
 export default function MachineManagementPage() {
   const queryClient = useQueryClient();
   const [machineModalOpen, setMachineModalOpen] = useState(false);
-  const [selectedMachine, setSelectedMachine] = useState<TreatmentMachine | null>(null);
-
   const { data: machines = [], isLoading } = useQuery({
     queryKey: ['machines'],
     queryFn: () => machinesApi.listMachines(),
@@ -110,7 +107,7 @@ export default function MachineManagementPage() {
                       <Table.Td>
                         <Group gap="xs">
                           <Tooltip label="Edit">
-                            <ActionIcon variant="subtle" onClick={() => setSelectedMachine(machine)}>
+                            <ActionIcon variant="subtle" onClick={() => { /* TODO: edit machine */ }}>
                               <IconEdit size={16} />
                             </ActionIcon>
                           </Tooltip>

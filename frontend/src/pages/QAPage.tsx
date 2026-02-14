@@ -154,8 +154,8 @@ export default function QAPage() {
       <ElectronicSignature
         opened={signatureOpen}
         onClose={() => setSignatureOpen(false)}
-        onComplete={handleSignatureComplete}
-        meaning="review"
+        onSigned={(sig) => handleSignatureComplete(sig.id)}
+        requiredMeaning="review"
         entityType="qa_record"
         entityId={selectedRecordId}
       />

@@ -265,8 +265,8 @@ export default function PlanManagementPage() {
       <ElectronicSignature
         opened={signatureModalOpen}
         onClose={() => setSignatureModalOpen(false)}
-        onComplete={handleSignatureComplete}
-        meaning={signatureAction === 'review' ? 'review' : 'approval'}
+        onSigned={(sig) => handleSignatureComplete(sig.id)}
+        requiredMeaning={signatureAction === 'review' ? 'review' : 'approval'}
         entityType="treatment_plan"
         entityId={selectedPlan?.id || ''}
       />
