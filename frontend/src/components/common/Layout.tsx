@@ -26,6 +26,7 @@ import {
   RiLogoutBoxLine,
   RiAdminLine,
   RiHospitalLine,
+  RiLink,
 } from 'react-icons/ri';
 import { useAppStore } from '../../store';
 import PatientBanner from './PatientBanner';
@@ -42,6 +43,7 @@ const navItems = [
   { label: 'Machines', icon: RiHospitalLine, path: '/admin/machines' },
   { label: 'QA', icon: RiShieldCheckLine, path: '/admin/qa' },
   { label: 'Users', icon: RiAdminLine, path: '/admin/users' },
+  { label: 'OIS Integration', icon: RiLink, path: '/admin/ois' },
   { label: 'Audit Log', icon: RiShieldCheckLine, path: '/admin/audit' },
   { label: 'Settings', icon: RiSettings3Line, path: '/admin/settings' },
 ];

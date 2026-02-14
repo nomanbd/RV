@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     DICOM_AE_TITLE: str = "RV_SCP"
     DICOM_SCP_PORT: int = 11112
 
+    # OIS Integration
+    OIS_SYNC_TIMEOUT_SECONDS: int = 60
+    OIS_MAX_RETRY_ATTEMPTS: int = 3
+
     # CORS
     CORS_ORIGINS: list[str] = ["http://localhost:5173"]
 

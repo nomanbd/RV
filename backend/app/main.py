@@ -51,6 +51,7 @@ def create_app() -> FastAPI:
     from app.domains.qa.router import router as qa_router
     from app.domains.reporting.router import router as reporting_router
     from app.dicom.router import router as dicom_router
+    from app.domains.ois.router import router as ois_router
 
     app.include_router(auth_router, prefix="/api/v1")
     app.include_router(patients_router, prefix="/api/v1")
@@ -64,6 +65,7 @@ def create_app() -> FastAPI:
     app.include_router(qa_router, prefix="/api/v1")
     app.include_router(reporting_router, prefix="/api/v1")
     app.include_router(dicom_router, prefix="/api/v1")
+    app.include_router(ois_router, prefix="/api/v1")
 
     @app.get("/api/health")
     async def health():

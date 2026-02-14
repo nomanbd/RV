@@ -15,6 +15,7 @@ import UserManagementPage from './pages/UserManagementPage';
 import QAPage from './pages/QAPage';
 import AuditLogPage from './pages/AuditLogPage';
 import SettingsPage from './pages/SettingsPage';
+import OISIntegrationPage from './pages/OISIntegrationPage';
 
 export default function App() {
   return (
@@ -56,6 +57,7 @@ export default function App() {
           <Route path="/admin/qa" element={<QAPage />} />
           <Route path="/admin/audit" element={<AuditLogPage />} />
           <Route path="/admin/settings" element={<SettingsPage />} />
+          <Route path="/admin/ois" element={<OISIntegrationPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

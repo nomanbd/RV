@@ -22,11 +22,13 @@ import {
   RiHospitalLine,
   RiFileList3Line,
   RiTimeLine,
+  RiLink,
 } from 'react-icons/ri';
 import { useAppStore } from '../store';
 import { reportingApi } from '../api/reporting';
 import { schedulingApi } from '../api/scheduling';
 import { planningApi } from '../api/planning';
+import { oisApi } from '../api/ois';
 
 interface StatCardProps {
   title: string;
@@ -49,6 +51,65 @@ function StatCard({ title, value, icon: Icon, color, description }: StatCardProp
           <Icon size={28} />
         </ThemeIcon>
       </Group>
+    </Card>
+  );
+}
+
+function OISStatusCard() {
+  const { data: connections = [] } = useQuery({
+    queryKey: ['ois-connections-dashboard'],
+    queryFn: () => oisApi.listConnections(),
+    retry: false,
+  });
+
+  if (connections.length === 0) return null;
+
+  const connected = connections.filter((c) => c.connection_status === 'connected');
+  const oisTypeLabel: Record<string, string> = {
+    aria: 'ARIA',
+    raycare: 'RayCare',
+    generic_fhir: 'FHIR',
+  };
+
+  return (
+    <Card withBorder p="md" radius="md">
+      <Group justify="space-between" mb="sm">
+        <Title order={4}>OIS Status</Title>
+        <ThemeIcon
+          color={connected.length > 0 ? 'green' : 'red'}
+          variant="light"
+          size="sm"
+          radius="xl"
+        >
+          <RiLink size={12} />
+        </ThemeIcon>
+      </Group>
+      <Stack gap="xs">
+        {connections.map((conn) => (
+          <Paper key={conn.id} withBorder p="sm" radius="sm">
+            <Group justify="space-between">
+              <div>
+                <Group gap="xs">
+                  <Text size="sm" fw={500}>{conn.name}</Text>
+                  {conn.is_primary && (
+                    <Badge size="xs" variant="light" color="blue">Primary</Badge>
+                  )}
+                </Group>
+                <Text size="xs" c="dimmed">
+                  {oisTypeLabel[conn.ois_type] || conn.ois_type}
+                </Text>
+              </div>
+              <Badge
+                size="sm"
+                color={conn.connection_status === 'connected' ? 'green' : conn.connection_status === 'error' ? 'red' : 'gray'}
+                variant="light"
+              >
+                {conn.connection_status}
+              </Badge>
+            </Group>
+          </Paper>
+        ))}
+      </Stack>
     </Card>
   );
 }
@@ -165,7 +226,9 @@ export default function DashboardPage() {
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 4 }}>
-          <Card withBorder p="md" radius="md">
+          <OISStatusCard />
+
+          <Card withBorder p="md" radius="md" mt="md">
             <Title order={4} mb="md">Notifications</Title>
             {notifs.length > 0 ? (
               <Stack gap="xs">
