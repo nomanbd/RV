@@ -42,10 +42,28 @@ def create_app() -> FastAPI:
     from app.domains.auth.router import router as auth_router
     from app.domains.patients.router import router as patients_router
     from app.domains.audit.router import router as audit_router
+    from app.domains.planning.router import router as planning_router
+    from app.domains.machines.router import router as machines_router
+    from app.domains.machines.router import tolerances_router
+    from app.domains.treatment.router import router as treatment_router
+    from app.domains.imaging.router import router as imaging_router
+    from app.domains.scheduling.router import router as scheduling_router
+    from app.domains.qa.router import router as qa_router
+    from app.domains.reporting.router import router as reporting_router
+    from app.dicom.router import router as dicom_router
 
     app.include_router(auth_router, prefix="/api/v1")
     app.include_router(patients_router, prefix="/api/v1")
     app.include_router(audit_router, prefix="/api/v1")
+    app.include_router(planning_router, prefix="/api/v1")
+    app.include_router(machines_router, prefix="/api/v1")
+    app.include_router(tolerances_router, prefix="/api/v1")
+    app.include_router(treatment_router, prefix="/api/v1")
+    app.include_router(imaging_router, prefix="/api/v1")
+    app.include_router(scheduling_router, prefix="/api/v1")
+    app.include_router(qa_router, prefix="/api/v1")
+    app.include_router(reporting_router, prefix="/api/v1")
+    app.include_router(dicom_router, prefix="/api/v1")
 
     @app.get("/api/health")
     async def health():
